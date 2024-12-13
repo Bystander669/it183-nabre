@@ -1,0 +1,112 @@
+{% extends "blog/base.html" %}
+
+{% block title %}
+{{ blog_detail.title }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article class="blog-post shadow-sm rounded bg-white p-4 mb-4">
+                <header class="blog-post-header mb-4">
+                    <h1 class="display-6 mb-3">{{ blog_detail.title }}</h1>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                        <div class="post-meta text-muted">
+                            <span class="me-3">
+                                <i class="bi bi-person-fill me-1"></i>
+                                {{ blog_detail.author.first_name }} {{ blog_detail.author.last_name }}
+                            </span>
+                        </div>
+                        {% if user.is_authenticated and user.id == blog_detail.author.id %}
+                            <div class="post-actions">
+                                <a href="/{{ blog_detail.id }}/update/" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="bi bi-pencil-fill"></i> Edit
+                                </a>
+                                <a href="/{{ blog_detail.id }}/delete/" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash-fill"></i> Delete
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </header>
+
+                <div class="blog-post-content">
+                    {{ blog_detail.content|safe }}
+                </div>
+
+                <footer class="blog-post-footer mt-4">
+                    {% if user.is_authenticated %}
+                        <div class="like-section mb-4">
+                            <form action="{% url 'like_post' blog_detail.id %}" method="POST" class="d-inline">
+                                {% csrf_token %} 
+                                {% if liked %}
+                                    <button type="submit" name="blog_detail_id" value="{{ blog_detail.id }}" class="btn btn-danger">
+                                        <i class="bi bi-heart-fill me-1"></i>{{ total_likes }} Unlike
+                                    </button> 
+                                {% else %}
+                                    <button type="submit" name="blog_detail_id" value="{{ blog_detail.id }}" class="btn btn-outline-danger">
+                                        <i class="bi bi-heart me-1"></i>{{ total_likes }} Like
+                                    </button> 
+                                {% endif %}
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>Login to like this post
+                        </div>
+                    {% endif %}
+
+                    <div class="comments-section">
+                        <h4 class="mb-4">Comments ({{ blog_detail.comments.count }})</h4>
+
+                        {% if user.is_authenticated %}
+                            <div class="comment-form mb-4">
+                                <form method="POST" action="">
+                                    {% csrf_token %}
+                                    <div class="form-floating mb-3">
+                                        {{ comment_form.body }}
+                                        <label for="{{ comment_form.body.id_for_label }}">Write a comment...</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-chat-fill me-1"></i>Add Comment
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>Login to add a comment
+                            </div>
+                        {% endif %}
+
+                        <div class="comments-list">
+                            {% if blog_detail.comments.all %}
+                                {% for comment in blog_detail.comments.all %}
+                                    <div class="comment border-bottom py-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong class="text-primary">{{ comment.name }}</strong>
+                                            <small class="text-muted">{{ comment.date_added|timesince }} ago</small>
+                                        </div>
+                                        <p class="mb-0">{{ comment.body }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-light text-center">
+                                    No comments yet. Be the first to comment!
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </footer>
+            </article>
+
+            <div class="text-center">
+                <a href="/" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Return to Blog List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "blog/base.html" %}
+
+{% block title %}
+Create Blog Post
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <h2>{{form_type}} Blog Post</h2>
+    <br><br>
+
+    <div class="form-group">
+    <form method="POST"> 
+      {% csrf_token %} 
+      {{ form.media }} 
+      {{ form.as_p }} 
+      <button type="submit" class="btn btn-secondary">Create</button>
+    </form>
+    </div>
+{% endif %}
+
+
+{% endblock %}
